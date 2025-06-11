@@ -1,0 +1,76 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import Card from './Card'
+
+const UrlForm = () => {
+  // set the URL being input
+  // set the flashcards after parsing
+  const [url, setUrl] = useState('');
+  const [flashcards, setFlashcards] = useState([]);
+
+  // on form submit do this
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log('Input Value:', url);
+    try {
+      // send a POST request to the backend 
+      const response = await axios.post('/api/generate-flashcards', { url: url });
+      console.log('Response: ', response.data);
+
+      // if the response sends back the flashcard string in the JSON
+      if (response.data.flashcards) {
+        // save to variable and split on '\n\n', which is how the pairs are delimited
+        const flashcardsText = response.data.flashcards;
+        const cardPairs = flashcardsText.split('\n\n');
+        
+        // use map so that each pair is split into an array
+        // first element is question, second element is answer
+        // if any are empty, filter out and return object
+        const parsedCards = cardPairs.map((pair, index) => {
+          const lines = pair.split('\n');
+          return {
+            id: index,
+            question: lines[0] || '',
+            answer: lines[1] || ''
+          };
+        }).filter(card => card.question && card.answer);
+        
+        // set the flashcards state and reset url
+        setFlashcards(parsedCards);
+        setUrl('');
+      } else {
+        console.log('No flashcards received');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // set the url state with inputted URL
+  const handleChange = (event) => {
+    setUrl(event.target.value);
+  };
+
+  // use map to create cards using the question/answer pairs from flashcards
+  return (
+    <>
+      <h1>AI Flashcard Generator</h1>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Enter URL:
+          <input type="text" value={url} onChange={handleChange} />
+        </label>
+        <button type="submit">Generate Flashcards</button>
+        <button>Refresh URL</button>
+      </form>
+      <span>URL entered: {url}</span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '20px' }}>
+        {flashcards && flashcards.map((card, index) => (
+          <Card key={index} question={card.question} answer={card.answer}/>
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default UrlForm;
