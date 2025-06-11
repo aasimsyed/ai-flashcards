@@ -12,6 +12,7 @@ const UrlForm = () => {
 
   // on form submit do this
   const handleSubmit = async (event) => {
+    // prevent page reload
     event.preventDefault();
     console.log('Input Value:', url);
     try {
@@ -38,9 +39,8 @@ const UrlForm = () => {
           };
         }).filter(card => card.question && card.answer);
         
-        // set the flashcards state and reset url
+        // set the flashcards state
         setFlashcards(parsedCards);
-        setUrl('');
       } else {
         console.log('No flashcards received');
       }
