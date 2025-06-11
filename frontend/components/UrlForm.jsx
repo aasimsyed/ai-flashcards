@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Card from './Card'
+import Card from './Card';
 
 const UrlForm = () => {
   // set the URL being input
@@ -17,7 +17,9 @@ const UrlForm = () => {
     console.log('Input Value:', url);
     try {
       // send a POST request to the backend with optional refresh query param
-      const endpoint = isRefresh ? '/api/generate-flashcards?refresh=true' : '/api/generate-flashcards';
+      const endpoint = isRefresh
+        ? '/api/generate-flashcards?refresh=true'
+        : '/api/generate-flashcards';
       const response = await axios.post(endpoint, { url: url });
       console.log('Response: ', response.data);
 
@@ -26,19 +28,21 @@ const UrlForm = () => {
         // save to variable and split on '\n\n', which is how the pairs are delimited
         const flashcardsText = response.data.flashcards;
         const cardPairs = flashcardsText.split('\n\n');
-        
+
         // use map so that each pair is split into an array
         // first element is question, second element is answer
         // if any are empty, filter out and return object
-        const parsedCards = cardPairs.map((pair, index) => {
-          const lines = pair.split('\n');
-          return {
-            id: index,
-            question: lines[0] || '',
-            answer: lines[1] || ''
-          };
-        }).filter(card => card.question && card.answer);
-        
+        const parsedCards = cardPairs
+          .map((pair, index) => {
+            const lines = pair.split('\n');
+            return {
+              id: index,
+              question: lines[0] || '',
+              answer: lines[1] || '',
+            };
+          })
+          .filter((card) => card.question && card.answer);
+
         // set the flashcards state
         setFlashcards(parsedCards);
       } else {
@@ -65,6 +69,10 @@ const UrlForm = () => {
     handleSubmit(event);
   };
 
+  const handleClear = () => {
+    setUrl('');
+  };
+
   // use map to create cards using the question/answer pairs from flashcards
   return (
     <>
@@ -75,13 +83,26 @@ const UrlForm = () => {
           <input type="text" value={url} onChange={handleChange} />
         </label>
         <button type="submit">Generate Flashcards</button>
-        <button type="button" onClick={handleRefresh}>Refresh URL</button>
+        <button type="button" onClick={handleRefresh}>
+          Refresh URL
+        </button>
+        <button type="button" onClick={handleClear}>
+          Clear Input
+        </button>
       </form>
       <span>URL entered: {url}</span>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '20px' }}>
-        {flashcards && flashcards.map((card, index) => (
-          <Card key={index} question={card.question} answer={card.answer}/>
-        ))}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '16px',
+          marginTop: '20px',
+        }}
+      >
+        {flashcards &&
+          flashcards.map((card, index) => (
+            <Card key={index} question={card.question} answer={card.answer} />
+          ))}
       </div>
     </>
   );
