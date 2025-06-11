@@ -5,16 +5,19 @@ import Card from './Card'
 const UrlForm = () => {
   // set the URL being input
   // set the flashcards after parsing
+  // set the refresh state when clicking "Refresh"
   const [url, setUrl] = useState('');
   const [flashcards, setFlashcards] = useState([]);
+  const [isRefresh, setIsRefresh] = useState(false);
 
   // on form submit do this
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log('Input Value:', url);
     try {
-      // send a POST request to the backend 
-      const response = await axios.post('/api/generate-flashcards', { url: url });
+      // send a POST request to the backend with optional refresh query param
+      const endpoint = isRefresh ? '/api/generate-flashcards?refresh=true' : '/api/generate-flashcards';
+      const response = await axios.post(endpoint, { url: url });
       console.log('Response: ', response.data);
 
       // if the response sends back the flashcard string in the JSON
@@ -43,12 +46,23 @@ const UrlForm = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      // Reset refresh state after request completes
+      setIsRefresh(false);
     }
   };
 
   // set the url state with inputted URL
   const handleChange = (event) => {
     setUrl(event.target.value);
+  };
+
+  // handle refresh button click
+  // set refresh to true so that the query parameter will be added
+  // then submit
+  const handleRefresh = (event) => {
+    setIsRefresh(true);
+    handleSubmit(event);
   };
 
   // use map to create cards using the question/answer pairs from flashcards
@@ -61,7 +75,7 @@ const UrlForm = () => {
           <input type="text" value={url} onChange={handleChange} />
         </label>
         <button type="submit">Generate Flashcards</button>
-        <button>Refresh URL</button>
+        <button type="button" onClick={handleRefresh}>Refresh URL</button>
       </form>
       <span>URL entered: {url}</span>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '20px' }}>
