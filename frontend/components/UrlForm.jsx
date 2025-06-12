@@ -8,10 +8,10 @@ const UrlForm = () => {
   // set the refresh state when clicking "Refresh"
   const [url, setUrl] = useState('');
   const [flashcards, setFlashcards] = useState([]);
-  const [isRefresh, setIsRefresh] = useState(false);
+  //const [isRefresh, setIsRefresh] = useState(false);
 
   // on form submit do this
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event, isRefresh=false) => {
     // prevent page reload
     event.preventDefault();
     console.log('Input Value:', url);
@@ -20,6 +20,8 @@ const UrlForm = () => {
       const endpoint = isRefresh
         ? '/api/generate-flashcards?refresh=true'
         : '/api/generate-flashcards';
+
+      console.log('Endpoint: ', endpoint);
       const response = await axios.post(endpoint, { url: url });
       console.log('Response: ', response.data);
 
@@ -52,7 +54,7 @@ const UrlForm = () => {
       console.error(err);
     } finally {
       // Reset refresh state after request completes
-      setIsRefresh(false);
+      isRefresh = false;
     }
   };
 
@@ -65,12 +67,12 @@ const UrlForm = () => {
   // set refresh to true so that the query parameter will be added
   // then submit
   const handleRefresh = (event) => {
-    setIsRefresh(true);
-    handleSubmit(event);
+    handleSubmit(event, true);
   };
 
   const handleClear = () => {
     setUrl('');
+    setFlashcards([]);
   };
 
   // use map to create cards using the question/answer pairs from flashcards
@@ -87,7 +89,7 @@ const UrlForm = () => {
           Refresh URL
         </button>
         <button type="button" onClick={handleClear}>
-          Clear Input
+          Clear
         </button>
       </form>
       <span>URL entered: {url}</span>
