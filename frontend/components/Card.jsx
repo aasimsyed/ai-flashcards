@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Card.css';
 
 const Card = ({ question, answer }) => {
   // state to see what side card is on
@@ -6,15 +7,7 @@ const Card = ({ question, answer }) => {
 
   // flip the cards between question answer on click
   return (
-    <div 
-      style={{ 
-        width: '200px', 
-        height: '200px',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        padding: '16px',
-        cursor: 'pointer'
-      }}
+    <div className='card'
       onClick={() => setFlipped(!flipped)}
     >
       {flipped ? question : answer}
